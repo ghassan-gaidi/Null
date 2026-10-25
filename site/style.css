@@ -1,0 +1,101 @@
+/* Null — site stylesheet. Hand-written. No JS, no framework, no CDN.
+   Design system: docs/superpowers/specs/2026-10-25-website-design.md
+   Direction: "Redacted" — paper/ink/yellow/red, 3px rules, zero animation. */
+
+/* ---------- tokens ---------- */
+:root {
+  --paper: #ebe7de;
+  --ink: #141414;
+  --yellow: #f2c744;
+  --red: #d0342c;      /* display/bold sizes only */
+  --red-alt: #8f2c25;  /* small red text */
+  --ink-dim: #55524a;
+  --band: #e2dccd;
+  --ok: #1d7a2d;
+
+  --mono: "JBM", ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --display: "AntonF", Impact, "Arial Narrow", system-ui, sans-serif;
+}
+
+/* ---------- fonts (self-hosted latin woff2, relative — /null/ base path) ---------- */
+@font-face {
+  font-family: "JBM";
+  src: url("fonts/jetbrains-mono-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "JBM";
+  src: url("fonts/jetbrains-mono-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "AntonF";
+  src: url("fonts/anton.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--ink);
+  color: var(--ink);
+  font-family: var(--mono);
+  line-height: 1.5;
+  padding: 38px 18px 70px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { max-width: 1120px; margin: 0 auto; }
+.pframe { background: var(--paper); border: 3px solid var(--ink); }
+.mono { font-family: var(--mono); }
+.bb { background: var(--ink); height: 1em; display: inline-block; vertical-align: middle; border-radius: 2px; }
+
+.skip {
+  position: absolute; left: -999px; top: 12px; z-index: 100;
+  background: var(--yellow); color: var(--ink);
+  padding: 10px 16px; border: 3px solid var(--ink);
+  font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  text-decoration: none;
+}
+.skip:focus { left: 30px; }
+
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* ---------- sticky nav ---------- */
+.pnav {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  padding: 12px 20px;
+  background: var(--yellow);
+  border-bottom: 3px solid var(--ink);
+  font-size: 11px; letter-spacing: .13em; text-transform: uppercase; font-weight: 700;
+}
+.pnav .brand { white-space: nowrap; }
+.pnav .brand b { background: var(--ink); color: var(--yellow); padding: 2px 8px; margin-right: 9px; }
+.pnav a { color: var(--ink); text-decoration: none; margin-left: 15px; display: inline-block; padding: 2px 0; }
+.pnav a:hover, .pnav a:focus-visible { text-decoration: underline; }
+.pnav a.gh { border-bottom: 3px solid var(--ink); }
+
+/* ---------- section head band ---------- */
+.shead {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  padding: 20px 24px 14px;
+  background: var(--band);
+  border-bottom: 3px solid var(--ink);
+}
+.shead h2 {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(24px, 3vw, 34px);
+  text-transform: uppercase; letter-spacing: .01em; line-height: 1.05;
+}
+.shead .ref { font-size: 10.5px; color: var(--ink-dim); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.shead .ref a { color: var(--red-alt); text-decoration: none; }
+.shead .ref a:hover, .shead .ref a:focus-visible { text-decoration: underline; }
+
+/* ---------- hazard stripe utility ---------- */
+.hazard {
+  height: 15px;
+  border-top: 3px solid var(--ink);
+  background: repeating-linear-gradient(45deg, var(--yellow) 0 14px, var(--ink) 14px 28px);
+}

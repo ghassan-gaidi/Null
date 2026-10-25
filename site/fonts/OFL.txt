@@ -1,0 +1,7 @@
+Fonts on this page are self-hosted latin subsets under the SIL Open Font License 1.1:
+
+- Anton — Vernon Adams / Google Fonts  (https://fonts.google.com/specimen/Anton)
+- JetBrains Mono — JetBrains (https://www.jetbrains.com/lp/mono/)
+
+No font CDN is used at runtime. Full license text:
+https://openfontlicense.org/open-font-license.html
