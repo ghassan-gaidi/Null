@@ -4,6 +4,10 @@
 ![Rust](https://img.shields.io/badge/rust-1.75%2B-orange)
 ![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)
 
+**Landing page:** <https://ghassan-gaidi.github.io/Null/> — the full dossier:
+threat grid, 2026 SOTA table, honesty ledger, run-it terminal. 0 bytes of
+JavaScript, 0 third-party requests. (URL is case-sensitive — repo is `Null`.)
+
 > **Mission.** Null exists to make private conversation *verifiable*:
 > end-to-end encrypted messaging with post-quantum forward secrecy and
 > healing, deniable by default, with no identifiers, no central servers,
