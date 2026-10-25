@@ -101,7 +101,20 @@
           <div class="lrow"><b>Constant-time message paths</b><span class="ev">dudect not run</span><span class="st"><span class="pill n">not run</span></span></div>
           <div class="lrow"><b>Third-party audit</b><span class="ev">open invitation · docs/audit-scope.md is the brief</span><span class="st"><span class="pill n">not performed</span></span></div>
         </div>
-        <section id="quickstart" aria-labelledby="h-quick"><!-- Task 6 --></section>
+        <section class="shead" id="quickstart" aria-labelledby="h-quick">
+          <h2 id="h-quick">§5 — Run it</h2>
+          <span class="ref">operator manual → <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/operations.md">docs/operations.md</a></span>
+        </section>
+        <div class="quick">
+          <div class="term">
+            <div class="tbar"><span>null — volatile ram, bash</span><span>write target: /dev/null</span></div>
+            <pre><span class="pr">$</span> cargo build --locked --bin null
+<span class="pr">$</span> ./target/debug/null --peer loopback --tui    <span class="cm"># self-test demo, no daemons</span>
+<span class="pr">$</span> ./target/debug/null --listen 18080           <span class="cm"># terminal 1: print your null:// string</span>
+<span class="pr">$</span> NULL_DIRECT_ADDR=127.0.0.1:18080 ./target/debug/null --peer <span class="lit">'null://…'</span>  <span class="cm"># terminal 2</span></pre>
+          </div>
+          <p class="hint">Over real Tor: <span class="mono">--control-port 9051</span> provisions an ephemeral onion service; dial with <span class="mono">NULL_LIVE_TRANSPORT=1</span>. Add <span class="mono">--verified</span> on both sides for ML-DSA-65 mutual auth + safety number.</p>
+        </div>
         <section id="docs" aria-labelledby="h-docs"><!-- Task 7 --></section>
 
       </main>
