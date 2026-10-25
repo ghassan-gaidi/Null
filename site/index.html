@@ -60,7 +60,29 @@
           <div class="cell"><span class="no">ADVERSARY 07</span><h3>Coercion / seizure</h3><p class="th">Physical access, rubber-hose demands.</p><p class="df"><i>⇒</i> duress PIN · decoy mode · USBGuard panic wipe · dead-man switch</p></div>
           <div class="cell"><span class="no">ADVERSARY 08</span><h3>Supply chain</h3><p class="th">Compromised registry, substituted binaries.</p><p class="df"><i>⇒</i> pinned Cargo.lock · reproducible builds (bit-identical, CI-verified)</p></div>
         </section>
-        <section id="sota" aria-labelledby="h-sota"><!-- Task 4 --></section>
+        <section class="shead" id="sota" aria-labelledby="h-sota">
+          <h2 id="h-sota">§3 — Against the 2026 state of the art</h2>
+          <span class="ref">full table + caveats → <a href="https://github.com/ghassan-gaidi/null/blob/main/README.md">README §sota</a></span>
+        </section>
+        <div class="tblwrap">
+          <table class="sota">
+            <thead><tr><th>dimension</th><th>Null</th><th>Signal</th><th>iMessage</th><th>Telegram</th></tr></thead>
+            <tbody>
+              <tr><th>architecture</th><td class="nul"><b>Serverless P2P</b> over tor/i2p/nym — no accounts, no central server</td><td>central servers; account required</td><td>centralized (Apple)</td><td>centralized cloud; phone-number account</td></tr>
+              <tr><th>E2E by default</th><td class="nul">yes — every session</td><td>yes</td><td>yes, but iCloud backups can expose history<span class="dud">†</span></td><td><span class="dud">no</span> — only Secret Chats E2E</td></tr>
+              <tr><th>identity</th><td class="nul">.onion + keys; <span class="mono">i=</span> fingerprint pinned out-of-band</td><td>phone number</td><td>Apple ID / phone number</td><td>phone number</td></tr>
+              <tr><th>post-quantum</th><td class="nul">ML-KEM-1024 + <b>ongoing rekey</b> ≤50 msgs / 7 d; handshake proven 5/5</td><td>SPQR triple ratchet, ProVerif + hax/F* in CI</td><td>PQ3, third-party analysis (USENIX '25)</td><td><span class="dud">none</span> — classical MTProto</td></tr>
+              <tr><th>deniable mode</th><td class="nul"><b>default</b> — no signatures; --verified opt-in</td><td><span class="dud">no</span></td><td><span class="dud">no</span></td><td><span class="dud">no</span></td></tr>
+              <tr><th>metadata / cover</th><td class="nul">2048B fixed frames · token bucket · <b>dummy cover</b></td><td>sealed sender + TLS</td><td>TLS</td><td>TLS/MTProto</td></tr>
+              <tr><th>circumvention</th><td class="nul">bridges · snowflake · webtunnel · obfs4</td><td>built-in TLS proxies</td><td><span class="dud">none built-in</span></td><td>MTProto proxies</td></tr>
+              <tr><th>source</th><td class="nul"><b>fully open</b>, reproducible, Tamarin-checked</td><td>open clients; server centrally run</td><td><span class="dud">closed</span></td><td>clients open; server closed</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="fn">
+          <sup>†</sup> unless Advanced Data Protection is on. &nbsp;<sup>††</sup> Signal and iMessage have far deeper external review and adversarial exposure than Null — a comparison table is not a security ranking, and Null's unproven rows say so in place.
+          &nbsp;<sup>†††</sup> Telegram's default-cloud chats sit outside the E2E comparison by product design — it buys seamless multi-device sync.
+        </div>
         <section id="ledger" aria-labelledby="h-ledger"><!-- Task 5 --></section>
         <section id="quickstart" aria-labelledby="h-quick"><!-- Task 6 --></section>
         <section id="docs" aria-labelledby="h-docs"><!-- Task 7 --></section>
