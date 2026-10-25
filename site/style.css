@@ -216,3 +216,32 @@ table.sota .dud { color: var(--red-alt); }
 .term .cm { color: #53895e; font-style: italic; }
 .term .lit { color: #8ee9ff; }
 .quick .hint { margin-top: 12px; font-size: 10.4px; color: var(--ink-dim); }
+
+/* ---------- §6 docs shelf ---------- */
+.docs { display: grid; grid-template-columns: 1fr 1fr; gap: 0 34px; padding: 18px 24px 24px; border-bottom: 3px solid var(--ink); }
+.docs a { display: block; font-size: 11.4px; color: var(--ink); text-decoration: none; padding: 6.5px 8px; border-bottom: 1px dotted #9b927c; }
+.docs a:hover, .docs a:focus-visible { background: var(--yellow); }
+.docs a i { color: var(--red-alt); font-style: normal; }
+.docs .docnote { grid-column: 1 / -1; font-size: 10.2px; color: var(--ink-dim); margin-top: 6px; }
+
+/* ---------- footer ---------- */
+.pf { background: var(--ink); color: var(--paper); }
+.pf .close { padding: 30px 24px 24px; border-bottom: 2px solid #333; }
+.pf .close p { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: clamp(24px, 3.6vw, 40px); line-height: 1.06; }
+.pf .close p .red { background: var(--red); padding: 0 12px 3px; display: inline-block; color: var(--paper); }
+.pf .cols { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 20px; padding: 22px 24px 26px; font-size: 11px; line-height: 1.9; }
+.pf h4 { font-size: 9.5px; letter-spacing: .2em; color: #6d6d66; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+.pf a { color: #c9f5d4; text-decoration: none; display: block; }
+.pf a:hover, .pf a:focus-visible { text-decoration: underline; }
+.pf .zero { color: #6ee775; font-weight: 700; }
+.pf .lic { color: #c9f5d4; display: block; }
+.pf .dim { color: #6d6d66; display: block; }
+.pf .prov { font-size: 9px; letter-spacing: .08em; margin-top: 2px; }
+.pf .hazard { height: 14px; border-top: 3px solid #333; background: repeating-linear-gradient(45deg, var(--yellow) 0 13px, #1a1a1a 13px 26px); }
+
+@media (max-width: 900px) {
+  .docs { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .pf .cols { grid-template-columns: 1fr; }
+}

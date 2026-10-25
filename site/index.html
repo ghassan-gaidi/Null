@@ -115,11 +115,43 @@
           </div>
           <p class="hint">Over real Tor: <span class="mono">--control-port 9051</span> provisions an ephemeral onion service; dial with <span class="mono">NULL_LIVE_TRANSPORT=1</span>. Add <span class="mono">--verified</span> on both sides for ML-DSA-65 mutual auth + safety number.</p>
         </div>
-        <section id="docs" aria-labelledby="h-docs"><!-- Task 7 --></section>
+        <section class="shead" id="docs" aria-labelledby="h-docs">
+          <h2 id="h-docs">§6 — The dossier shelf</h2>
+          <span class="ref">17 design docs, read in order</span>
+        </section>
+        <div class="docs mono">
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/security-posture.md">docs/security-posture.md <i>— the honest posture page</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/threat-model.md">docs/threat-model.md <i>— adversaries &amp; non-goals</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/crypto.md">docs/crypto.md <i>— NTR specification</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/wire-protocol.md">docs/wire-protocol.md <i>— byte-level frames</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/deniability.md">docs/deniability.md <i>— what deniable means, exactly</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/transports.md">docs/transports.md <i>— daemon/sidecar model</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/groups.md">docs/groups.md <i>— Null-MLS TreeKEM</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/memory-hardening.md">docs/memory-hardening.md <i>— RAM-only operation</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/updates.md">docs/updates.md <i>— hybrid-signed updates</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/multidevice.md">docs/multidevice.md <i>— one identity, N devices</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/cli.md">docs/cli.md <i>— modes &amp; exit codes</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/testing.md">docs/testing.md <i>— property → test matrix</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/development.md">docs/development.md <i>— build &amp; verify guide</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/audit-scope.md">docs/audit-scope.md <i>— reviewer brief</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/operations.md">docs/operations.md <i>— operator runbook</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/release.md">docs/release.md <i>— release ceremony</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/api.md">docs/api.md <i>— crate surface map</i></a>
+          <a href="https://github.com/ghassan-gaidi/null/blob/main/SECURITY.md">SECURITY.md <i>— disclosure policy</i></a>
+          <p class="docnote">Links resolve to the repository. The site publishes nothing the repo doesn't prove.</p>
+        </div>
 
       </main>
 
-      <!-- Task 7: footer -->
+      <footer class="pf">
+        <div class="close"><p>Zero telemetry. Zero servers. <span class="red">Zero &ldquo;take our word for it.&rdquo;</span></p></div>
+        <div class="cols">
+          <div><h4>the project</h4><a href="https://github.com/ghassan-gaidi/null">github.com/ghassan-gaidi/null ↗</a><a href="https://github.com/ghassan-gaidi/null/blob/main/docs/release.md">release &amp; reproducibility ceremony</a><a href="https://github.com/ghassan-gaidi/null/blob/main/SECURITY.md">secure disclosure (SECURITY.md)</a></div>
+          <div><h4>for auditors</h4><a href="https://github.com/ghassan-gaidi/null/blob/main/docs/audit-scope.md">audit scope &amp; reviewer brief</a><a href="https://github.com/ghassan-gaidi/null/tree/main/model">tamarin models (5/5 proven, CI)</a><a href="https://github.com/ghassan-gaidi/null/tree/main/vectors">KAT vectors — cross-implement</a></div>
+          <div><h4>this page</h4><span class="zero">0 third-party requests · no cookies · no analytics</span><span class="lic">MIT OR Apache-2.0</span><span class="dim">self-hosted anton + jetbrains mono</span><span class="dim prov">built from 8bcf680 · 2026-10-25</span></div>
+        </div>
+        <div class="hazard"></div>
+      </footer>
 
     </div>
   </div>
