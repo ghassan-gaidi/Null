@@ -141,7 +141,7 @@ body {
   .phero .evi { grid-template-columns: 1fr 1fr; }
   .phero .evi .e { border-bottom: 2px solid var(--ink); }
   .phero .evi .e:nth-child(2n) { border-right: none; }
-  .phero .evi .e:nth-child(-n+2) { border-bottom: 2px solid var(--ink); }
+  .phero .evi .e:nth-child(n+3) { border-bottom: none; }
 }
 
 /* ---------- ≤720px: compact ---------- */
