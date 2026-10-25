@@ -183,3 +183,26 @@ table.sota td b { font-weight: 800; }
 table.sota .dud { color: var(--red-alt); }
 .fn { padding: 12px 24px 16px; font-size: 10.2px; color: var(--ink-dim); line-height: 1.7; border-bottom: 3px solid var(--ink); }
 .fn sup { color: var(--red-alt); font-weight: 700; }
+
+/* ---------- §4 honesty ledger ---------- */
+.legend { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 24px; border-bottom: 2px solid var(--ink); font-size: 9.6px; letter-spacing: .05em; }
+.lg { padding: 3px 9px; border: 2px solid var(--ink); font-weight: 700; }
+.lg.p { background: #6ee775; }
+.lg.t { background: var(--yellow); }
+.lg.a { background: var(--red); color: #fff; }
+.ledger { border-bottom: 3px solid var(--ink); }
+.lrow { display: grid; grid-template-columns: 260px 1fr 150px; gap: 14px; align-items: center; padding: 10px 24px; border-bottom: 1px solid #b3ab95; font-size: 11.3px; }
+.lrow:last-child { border-bottom: none; }
+.lrow b { font-size: 12px; text-transform: uppercase; letter-spacing: .02em; }
+.lrow .ev { color: var(--ink-dim); font-size: 10.3px; }
+.lrow .st { text-align: right; }
+.pill { display: inline-block; font-weight: 800; font-size: 9.6px; letter-spacing: .1em; padding: 4px 11px; border: 2px solid var(--ink); text-transform: uppercase; }
+.pill.p { background: #6ee775; color: var(--ink); }
+.pill.t { background: var(--yellow); color: var(--ink); }
+.pill.i { background: #fff; color: var(--red-alt); border-style: dashed; }
+.pill.n { background: var(--red); color: #fff; }
+
+@media (max-width: 900px) {
+  .lrow { grid-template-columns: 1fr 120px; }
+  .lrow .ev { display: none; }
+}
