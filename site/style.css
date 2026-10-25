@@ -99,3 +99,58 @@ body {
   border-top: 3px solid var(--ink);
   background: repeating-linear-gradient(45deg, var(--yellow) 0 14px, var(--ink) 14px 28px);
 }
+
+/* ---------- hero ---------- */
+.phero { position: relative; padding: 44px 24px 30px; border-bottom: 3px solid var(--ink); }
+.phero h1 {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(48px, 7.4vw, 82px);
+  text-transform: uppercase; line-height: .97; letter-spacing: .012em;
+}
+.phero h1 .blk { display: inline-block; background: var(--ink); color: var(--paper); padding: 0 18px 3px; }
+.phero .stamp {
+  position: absolute; right: 26px; top: 46%; transform: rotate(-9deg);
+  border: 3px solid var(--red); color: var(--red);
+  background: rgba(235, 231, 222, .9);
+  padding: 8px 16px; font-weight: 800; font-size: 17px;
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.phero .file { position: absolute; top: 16px; right: 24px; font-size: 9.5px; color: var(--ink-dim); text-align: right; line-height: 1.65; }
+.phero .sub { margin-top: 22px; font-size: 13px; line-height: 2.05; max-width: 66ch; }
+.phero .ctas { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 12px; }
+.phero .cta {
+  display: inline-block; border: 3px solid var(--ink);
+  background: var(--yellow); color: var(--ink);
+  font-weight: 700; font-size: 13px; padding: 14px 22px;
+  text-transform: uppercase; letter-spacing: .07em; text-decoration: none;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.phero .cta:hover, .phero .cta:focus-visible { background: var(--ink); color: var(--yellow); }
+.phero .cta.ghost { background: transparent; box-shadow: none; }
+.phero .cta.ghost:hover, .phero .cta.ghost:focus-visible { background: var(--ink); color: var(--paper); box-shadow: none; }
+.phero .evi { margin-top: 34px; display: grid; grid-template-columns: repeat(4, 1fr); border: 3px solid var(--ink); }
+.phero .evi .e { padding: 12px 16px; border-right: 2px solid var(--ink); }
+.phero .evi .e:last-child { border-right: none; }
+.phero .evi .k { display: block; font-size: 8.5px; letter-spacing: .18em; color: var(--ink-dim); text-transform: uppercase; }
+.phero .evi .v { display: block; font-size: 11.5px; font-weight: 700; margin-top: 4px; }
+.phero .evi .v.ok { color: var(--ok); }
+.phero .hazard { margin: 26px -24px -30px; }
+
+/* ---------- ≤900px: landscape pairs ---------- */
+@media (max-width: 900px) {
+  .phero .evi { grid-template-columns: 1fr 1fr; }
+  .phero .evi .e { border-bottom: 2px solid var(--ink); }
+  .phero .evi .e:nth-child(2n) { border-right: none; }
+  .phero .evi .e:nth-child(-n+2) { border-bottom: 2px solid var(--ink); }
+}
+
+/* ---------- ≤720px: compact ---------- */
+@media (max-width: 720px) {
+  .pnav { flex-wrap: wrap; padding: 10px 14px; }
+  .pnav .links a { margin-left: 12px; }
+  .phero { padding: 32px 16px 22px; }
+  .phero .stamp { position: static; display: inline-block; transform: rotate(-6deg); margin-bottom: 16px; }
+  .phero .file { top: 10px; right: 14px; }
+  .phero h1 { font-size: clamp(40px, 11.5vw, 64px); }
+  .phero .sub { font-size: 12.5px; }
+}
