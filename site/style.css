@@ -154,3 +154,20 @@ body {
   .phero h1 { font-size: clamp(40px, 11.5vw, 64px); }
   .phero .sub { font-size: 12.5px; }
 }
+
+/* ---------- §2 enemy ---------- */
+.enemy { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 3px solid var(--ink); }
+.enemy .cell { padding: 14px 15px 16px; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.enemy .cell:nth-child(4n) { border-right: none; }
+.enemy .cell:nth-child(n+5) { border-bottom: none; }
+.enemy .no { font-size: 9px; color: var(--ink-dim); letter-spacing: .2em; }
+.enemy h3 { font-size: 12.5px; text-transform: uppercase; margin-top: 4px; font-weight: 800; line-height: 1.25; }
+.enemy .th { font-size: 10.3px; color: var(--ink-dim); margin-top: 6px; line-height: 1.45; min-height: 30px; }
+.enemy .df { font-size: 10px; color: var(--ink); font-weight: 700; margin-top: 8px; line-height: 1.55; }
+.enemy .df i { color: var(--ok); font-style: normal; }
+
+@media (max-width: 900px) {
+  .enemy { grid-template-columns: 1fr 1fr; }
+  .enemy .cell:nth-child(even) { border-right: none; }
+  .enemy .cell:nth-last-child(n+3) { border-bottom: 2px solid var(--ink); }
+}

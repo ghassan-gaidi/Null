@@ -46,7 +46,20 @@
           <div class="hazard"></div>
         </section>
 
-        <section id="enemy" aria-labelledby="h-enemy"><!-- Task 3 --></section>
+        <section class="shead" id="enemy" aria-labelledby="h-enemy">
+          <h2 id="h-enemy">§2 — The Enemy</h2>
+          <span class="ref">full matrix → <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/threat-model.md">docs/threat-model.md</a></span>
+        </section>
+        <section class="enemy" aria-label="Eight adversaries, and the defense for each">
+          <div class="cell"><span class="no">ADVERSARY 01</span><h3>Global passive observer</h3><p class="th">Traffic analysis, timing correlation, packet sizes, social graph.</p><p class="df"><i>⇒</i> 2048-byte fixed frames · 1 frame/2s shaping + jitter · dummy cover · tor/i2p/nym</p></div>
+          <div class="cell"><span class="no">ADVERSARY 02</span><h3>Active network attacker</h3><p class="th">MitM, injection, replay, rushing, message dropping.</p><p class="df"><i>⇒</i> triple-DH + ML-KEM handshake · AEAD with bound AD · transcript resync</p></div>
+          <div class="cell"><span class="no">ADVERSARY 03</span><h3>Quantum (harvest now)</h3><p class="th">Ciphertexts stored today, classical keys broken tomorrow.</p><p class="df"><i>⇒</i> ML-KEM-1024 at handshake · re-encap every ≤50 msgs / 7 d · ML-DSA-65 ids</p></div>
+          <div class="cell"><span class="no">ADVERSARY 04</span><h3>Local forensics</h3><p class="th">Disk imaging, swap analysis, cold boot.</p><p class="df"><i>⇒</i> zero disk writes · mlock · MADV_DONTDUMP · 3-pass panic wipe</p></div>
+          <div class="cell"><span class="no">ADVERSARY 05</span><h3>Endpoint malware (user)</h3><p class="th">Keyloggers, screen capture, clipboard scrapers.</p><p class="df"><i>⇒</i> /dev/tty + evdev input · clipboard auto-clear · anti-screenshot hints</p></div>
+          <div class="cell"><span class="no">ADVERSARY 06</span><h3>Nation-state censor</h3><p class="th">DPI, bridge blocking, throttling.</p><p class="df"><i>⇒</i> bridges · snowflake · webtunnel · obfs4 · latency-weighted failover</p></div>
+          <div class="cell"><span class="no">ADVERSARY 07</span><h3>Coercion / seizure</h3><p class="th">Physical access, rubber-hose demands.</p><p class="df"><i>⇒</i> duress PIN · decoy mode · USBGuard panic wipe · dead-man switch</p></div>
+          <div class="cell"><span class="no">ADVERSARY 08</span><h3>Supply chain</h3><p class="th">Compromised registry, substituted binaries.</p><p class="df"><i>⇒</i> pinned Cargo.lock · reproducible builds (bit-identical, CI-verified)</p></div>
+        </section>
         <section id="sota" aria-labelledby="h-sota"><!-- Task 4 --></section>
         <section id="ledger" aria-labelledby="h-ledger"><!-- Task 5 --></section>
         <section id="quickstart" aria-labelledby="h-quick"><!-- Task 6 --></section>
