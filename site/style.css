@@ -11,7 +11,7 @@
   --red-alt: #8f2c25;  /* small red text */
   --ink-dim: #55524a;
   --band: #e2dccd;
-  --ok: #1d7a2d;
+  --ok: #1a6f27;
 
   --mono: "JBM", ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
   --display: "AntonF", Impact, "Arial Narrow", system-ui, sans-serif;
@@ -73,7 +73,7 @@ body {
 }
 .pnav .brand { white-space: nowrap; }
 .pnav .brand b { background: var(--ink); color: var(--yellow); padding: 2px 8px; margin-right: 9px; }
-.pnav a { color: var(--ink); text-decoration: none; margin-left: 15px; display: inline-block; padding: 2px 0; }
+.pnav a { color: var(--ink); text-decoration: none; margin-left: 15px; display: inline-block; padding: 6px 0; }
 .pnav a:hover, .pnav a:focus-visible { text-decoration: underline; }
 .pnav a.gh { border-bottom: 3px solid var(--ink); }
 
@@ -90,7 +90,7 @@ body {
   text-transform: uppercase; letter-spacing: .01em; line-height: 1.05;
 }
 .shead .ref { font-size: 10.5px; color: var(--ink-dim); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
-.shead .ref a { color: var(--red-alt); text-decoration: none; }
+.shead .ref a { color: var(--red-alt); text-decoration: underline; }
 .shead .ref a:hover, .shead .ref a:focus-visible { text-decoration: underline; }
 
 /* ---------- hazard stripe utility ---------- */
@@ -112,7 +112,7 @@ body {
   position: absolute; right: 26px; top: 46%; transform: rotate(-9deg);
   border: 3px solid var(--red); color: var(--red);
   background: rgba(235, 231, 222, .9);
-  padding: 8px 16px; font-weight: 800; font-size: 17px;
+  padding: 8px 16px; font-weight: 800; font-size: 19px;
   letter-spacing: .05em; text-transform: uppercase;
 }
 .phero .file { position: absolute; top: 16px; right: 24px; font-size: 9.5px; color: var(--ink-dim); text-align: right; line-height: 1.65; }
@@ -213,7 +213,7 @@ table.sota .dud { color: var(--red-alt); }
 .term .tbar { display: flex; justify-content: space-between; background: var(--yellow); color: var(--ink); font-size: 10px; padding: 8px 14px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; border-bottom: 3px solid var(--ink); }
 .term pre { color: #c9f5d4; font-family: var(--mono); font-size: 12px; line-height: 1.85; padding: 18px 20px; overflow-x: auto; }
 .term .pr { color: var(--yellow); font-weight: 700; }
-.term .cm { color: #53895e; font-style: italic; }
+.term .cm { color: #5c9567; font-style: italic; }
 .term .lit { color: #8ee9ff; }
 .quick .hint { margin-top: 12px; font-size: 10.4px; color: var(--ink-dim); }
 
@@ -230,12 +230,12 @@ table.sota .dud { color: var(--red-alt); }
 .pf .close p { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: clamp(24px, 3.6vw, 40px); line-height: 1.06; }
 .pf .close p .red { background: var(--red); padding: 0 12px 3px; display: inline-block; color: var(--paper); }
 .pf .cols { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 20px; padding: 22px 24px 26px; font-size: 11px; line-height: 1.9; }
-.pf h4 { font-size: 9.5px; letter-spacing: .2em; color: #6d6d66; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
-.pf a { color: #c9f5d4; text-decoration: none; display: block; }
+.pf h4, .pf h3.h { font-size: 9.5px; letter-spacing: .2em; color: #87847d; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+.pf a { color: #c9f5d4; text-decoration: none; display: block; padding: 3px 0; }
 .pf a:hover, .pf a:focus-visible { text-decoration: underline; }
 .pf .zero { color: #6ee775; font-weight: 700; }
 .pf .lic { color: #c9f5d4; display: block; }
-.pf .dim { color: #6d6d66; display: block; }
+.pf .dim { color: #87847d; display: block; }
 .pf .prov { font-size: 9px; letter-spacing: .08em; margin-top: 2px; }
 .pf .hazard { height: 14px; border-top: 3px solid #333; background: repeating-linear-gradient(45deg, var(--yellow) 0 13px, #1a1a1a 13px 26px); }
 
