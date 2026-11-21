@@ -14,7 +14,7 @@ plain-spoken companion to the marketing pages (`README.md`, `SUMMARY.md`).
 | `null-frame` | 2048-byte frame codec, token-bucket traffic shaper, dummies | `crates/null-frame/src/lib.rs` |
 | `null-session` | Handshake framing/reassembly, pack/unpack pipeline, Inbox recovery | `crates/null-session/src/lib.rs` |
 | `null-transport` | Tor/I2P/Nym/PT dialing, multiplexer, blob pipes, live SOCKS/SAM | `crates/null-transport/src/lib.rs` (+ `live.rs`) |
-| `null-memory` | mlock/MADV, 3-pass wipe, HSM tiers, sleep protection | `crates/null-memory/src/lib.rs` |
+| `null-memory` | process hardening, `HardenedBuffer`, terminal clear, HSM tiers, sleep protection | `crates/null-memory/src/lib.rs` |
 | `null-identity` | Safety numbers, QR, transparency log, device sets | `crates/null-identity/src/lib.rs` |
 | `null-group` | TreeKEM ratchet trees, commits, welcomes | `crates/null-group/src/lib.rs` (+ `tree.rs`) |
 | `null-update` | Hybrid-signed manifests, gossip, downgrade floor | `crates/null-update/src/lib.rs` |

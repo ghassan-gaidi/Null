@@ -84,9 +84,9 @@ When `--verified`:
 
 | Command | Behavior |
 |---|---|
-| `/quit` | Sends a Goodbye control frame, drains inbound ~2 s (so the peer's in-flight messages arrive and print), then 3-pass wipe + exit 0 |
-| `/lock` | Locks the UI; PIN (`1234` demo) unlocks |
-| `/unlock` | Unlocks; **duress PIN `0000` triggers the panic wipe** instead |
+| `/quit` | Sends a Goodbye control frame, drains inbound ~2 s (so the peer's in-flight messages arrive and print), then clears the terminal and exits 0 |
+| `/lock` | Locks the UI (needs `NULL_LOCK_PIN`/`NULL_DURESS_PIN`; unavailable without them); the PIN unlocks |
+| `/unlock` | Unlocks; **the duress PIN takes the exit path** (terminal clear + exit) instead |
 | `/copy` | Copies the last peer message; clipboard auto-clears after 5 s in a background thread (Wayland `wl-copy` zombies reaped) |
 | Ctrl-C | Panic wipe + exit 0 |
 | Esc (TUI) | Quit — restores terminal, sends goodbye + drains inbound ~2 s, then wipes |
@@ -117,8 +117,8 @@ exits — it is a deliberate operator choice.
 ## 9. Exit codes
 
 - Deliberate exits — `/quit`, Ctrl-C, peer goodbye/disconnect, dead-man,
-  USBGuard, EOF, successful demo completion — are **`exit 0` after a
-  3-pass wipe**.
+  EOF, successful demo completion — are **`exit 0` after a terminal
+  clear**. SIGTERM exits 143, SIGHUP 129, and the USBGuard trigger 2.
 - Error paths (`NullError`, `anyhow`) propagate a **nonzero** status before
   the wipe machinery runs. "Exited 0" is therefore meaningful: it means
   the wipe ran.

@@ -15,13 +15,13 @@ JavaScript, 0 third-party requests. (URL is case-sensitive — repo is `Null`.)
 > proof, or test, and whatever isn't proven yet is labeled as such.
 
 **Null** is a zero-telemetry, serverless, post-quantum peer-to-peer terminal
-messenger. It runs entirely in volatile RAM, leaves zero forensic residue, and
+messenger. It runs entirely in volatile RAM, writes nothing to disk, and
 provides **ongoing post-quantum rekeying inside a continuous triple ratchet**
 (Kyber re-encapsulation mixed into the root key every ≤ 50 messages / 7 days),
 multi-transport censorship resistance, and hardware-presence-aware key
 handling — all in a terminal-native app.
 
-Everything below is implemented and tested in this repository: 124 tests green,
+Everything below is implemented and tested in this repository: 130 tests green,
 `clippy -D warnings` clean, reproducible builds verified bit-identical, and
 live two-process chats (deniable, verified, TUI) proven over real sockets.
 
@@ -40,7 +40,7 @@ live two-process chats (deniable, verified, TUI) proven over real sockets.
 | Downgrade-attack matrix enforced by test (10 cases) | ✅ | Rare |
 | Multi-transport: Tor / I2P / Nym / Snowflake / WebTunnel / obfs4 | ✅ | ❌ |
 | Fixed 2048-byte frames + token-bucket shaping + dummy cover | ✅ | ❌ |
-| RAM-only, mlock, 3-pass panic wipe, no disk writes | ✅ | ❌ |
+| RAM-only, no-core-dump hardening, terminal clear on exit, no disk writes | ✅ | ❌ |
 | Duress PIN, decoy mode, USBGuard, auto-lock, clipboard auto-clear | ✅ | ❌ |
 | Group messaging with PCS-preserving commits | CLI live: membership (`create`/`add`/`remove`/`update`/`sync`/`join`) + messaging (`send`/`recv`) over pipe-oriented base64 state | ✅-ish |
 | Signed, gossip-distributed, downgrade-proof updates | CLI live: `update check` (zero writes) + explicit `update apply` (temp→rename); onion fetch is a documented follow-up | ❌ |
@@ -70,7 +70,7 @@ trade plainly instead of implying parity.
 | Metadata / cover traffic | Fixed 2048B frames, 1 frame/2s shaping + jitter, dummy cover; `.onion` resolution is remote (no local DNS leak) | Sealed sender + TLS to central servers; no padding/cover framing comparable to Null's | TLS to Apple infra; no user-visible cover traffic | TLS/MTProto to Telegram servers |
 | Censorship circumvention | Tor bridges, Snowflake, WebTunnel, obfs4, pluggable transports | Built-in circumvention (TLS proxies and related techniques) | None built-in | MTProto proxies |
 | Source availability | Fully open (MIT OR Apache-2.0), reproducible builds, Tamarin-checked handshake, committed KAT vectors | Open clients; server code published but run centrally | Closed source | Open clients; server closed |
-| Endpoint posture | Terminal-native, RAM-only, `mlock`, 3-pass panic wipe, duress PIN / decoy mode, USBGuard, clipboard auto-clear | Standard mobile/desktop app; data at rest on device, OS backups apply | Standard app; backups and iCloud sync apply | Standard app; cloud history by design |
+| Endpoint posture | Terminal-native, RAM-only, no-core-dump hardening, terminal clear on exit, duress PIN / decoy mode, USBGuard, clipboard auto-clear | Standard mobile/desktop app; data at rest on device, OS backups apply | Standard app; backups and iCloud sync apply | Standard app; cloud history by design |
 | Groups | TreeKEM commits, O(log n) path encapsulations, epoch hash-chaining (fork/gap/replay rejection); PQ node keys today, proofs in progress | Sender Keys (fan-out per sender, classical) | Apple key-service mediated groups | Server-mediated groups |
 
 Beyond these four: **MLS (RFC 9420)** is the standardized group protocol,
@@ -110,7 +110,7 @@ Null is designed to resist:
 | Passive global observer (traffic analysis, timing) | 2048B fixed frames, 1 frame/2s shaping + jitter, dummy cover traffic, Tor/I2P/Nym routing |
 | Active network attacker (MitM, injection) | Triple-DH + Kyber handshake, AEAD with bound associated data, per-message ratchet |
 | Quantum adversary (harvest-now-decrypt-later) | ML-KEM-1024 now + periodic re-encapsulation; ML-DSA-65 identities |
-| Local forensic analyst (disk, swap, cold boot) | Zero disk writes, `mlock` + `MADV_DONTDUMP`, `PR_SET_DUMPABLE=0`, 3-pass wipe, sleep-inhibitor guidance |
+| Local forensic analyst (disk, swap, cold boot) | Zero disk writes, `PR_SET_DUMPABLE=0` + core dumps off, sleep-inhibitor guidance. Swap and cold boot are not covered: keys are not held in locked memory yet (`docs/memory-hardening.md`) |
 | Endpoint malware (user-level) | `/dev/tty` + optional evdev secure input, clipboard auto-clear, anti-screenshot hints per OS |
 | Nation-state censor (DPI, bridge blocking) | Tor bridges, Snowflake, WebTunnel, obfs4, protocol mimicry |
 | Coercion / device seizure | Duress PIN (silent wipe), decoy mode, USBGuard panic wipe, dead-man auto-lock |
@@ -187,9 +187,16 @@ including in live chats.
 
 ### Memory & endpoint hardening (Linux-first, OS abstractions ready)
 
-- `mlock`, `MADV_WILLNEED`/`MADV_DONTDUMP`, `PR_SET_DUMPABLE=0`.
-- 3-pass panic wipe (random → zero → random) on `SIGINT`/`SIGTERM`/`SIGHUP`,
-  panic, Ctrl-C, `/quit`, EOF, peer goodbye, USBGuard trigger.
+- Process hardening at startup: `PR_SET_DUMPABLE=0` and `RLIMIT_CORE=0` (no
+  core dumps, no same-uid ptrace attach).
+- `HardenedBuffer` (page-aligned `mlock` + `MADV_DONTDUMP`, zeroized on drop)
+  exists in `null-memory`, but ratchet and identity keys are **not** stored in
+  it yet. They sit in ordinary memory and can be swapped: use encrypted swap
+  or no swap.
+- On `SIGINT`/`SIGTERM`/`SIGHUP`, panic, Ctrl-C, `/quit`, EOF, peer goodbye
+  and the USBGuard trigger, the terminal and scrollback are cleared and the
+  process exits. Exits skip destructors, so keys are released by the kernel,
+  not zeroized by `null`.
 - Alternate-screen TUI with scrollback kill on exit; clipboard copy with
   5-second auto-clear and clipboard-manager warnings.
 - HSM tiers: Tier-1 RAM-only default; TPM/YubiKey presence probe
@@ -253,7 +260,8 @@ Over real Tor, front the listener's port with an onion service
 
 **In-chat commands**: `/quit` (goodbye + drain + wipe) · `/lock` · `/unlock` ·
 `/copy` (copies last peer message, clears clipboard in 5s). TUI adds
-demo PIN `1234` / duress `0000`, Esc to quit.
+a lock screen (only when `NULL_LOCK_PIN` and `NULL_DURESS_PIN` are set; no
+default PIN; the loopback demo uses `1234` / `0000`), Esc to quit.
 
 **Connection strings** (`null://`):
 
@@ -276,7 +284,7 @@ null://<56-char-onion>.onion?k=<base64 ML-KEM-1024 ek>&i=<ml-dsa:fingerprint>&t=
 --webtunnel-front <d>        WebTunnel front domain (default built-in placeholder)
 --control-port <PORT>        provision ephemeral onion via Tor control
 --secure-input               evdev keystroke reading (needs root)
---usbguard                   panic-wipe on new /dev nodes
+--usbguard                   clear terminal + exit 2 on new /dev nodes
 --auto-lock-secs <N>         idle lock (default 1800)
 --dead-man-secs <N>          idle wipe + exit, 0 disables (default 0)
 --safe                       decoy IRC-like interface (loopback/TUI sessions)
@@ -300,7 +308,7 @@ state for groups/rosters; explicit keys and paths for updates).
 
 ## Verification
 
-- **124 tests**, all passing: ratchet roundtrips, out-of-order bursts, rekey
+- **130 tests**, all passing: ratchet roundtrips, out-of-order bursts, rekey
   healing at message 51, lossless rekey-loss recovery, handshake codecs +
   fragmentation, TCP end-to-end (deniable *and* verified, incl.
   safety-number agreement), TreeKEM commits/openings/blanks, group

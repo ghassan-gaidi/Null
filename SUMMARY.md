@@ -17,7 +17,7 @@ presence probing, and a formally verified establishment layer.
 
 Proof status, stated plainly, in one paragraph:
 
-- **Engineered & tested**: 124 tests green, `clippy -D warnings` clean,
+- **Engineered & tested**: 130 tests green, `clippy -D warnings` clean,
   committed known-answer vectors, a stable-channel deterministic fuzz
   corpus over every wire decoder, live two-process chats (deniable,
   verified, TUI) exercised over real sockets, and bit-identical reproducible
@@ -39,7 +39,7 @@ Proof status, stated plainly, in one paragraph:
 | Passive network observer | Global traffic analysis, timing correlation, packet inspection | Defended: fixed 2048-byte frames, token-bucket shaping, dummy cover, Tor/I2P/Nym routing |
 | Active network attacker | MitM, injection, replay, rushing, dropping | Defended: AEAD + bound associated data, per-message ratchet, transcript resync bounds, loss = loud failure |
 | Quantum adversary (HNDL) | Stores ciphertexts today; breaks classical crypto later | Defended: ML-KEM-1024 now + periodic re-encapsulation (50 msgs / 604800 s); ML-DSA-65 + SLH-DSA are believed quantum-resistant |
-| Local forensic analyst | Disk imaging, swap analysis, cold boot | Defended (partially): zero disk writes, `mlock`/`MADV_DONTDUMP`, 3-pass wipe; cold boot with power retained is made expensive, not defeated |
+| Local forensic analyst | Disk imaging, swap analysis, cold boot | Defended (partially): zero disk writes, `PR_SET_DUMPABLE=0` + core dumps off (keys are not in locked memory yet, so swap is not covered); cold boot with power retained is made expensive, not defeated |
 | Suppressive actor | Coercion, device seizure, rubber-hose | Mitigated: duress PIN, decoy mode, dead-man switch, alarm-level wipe; no crypto resists torture against *future* messages |
 | Malicious group member | Reads group traffic, sends crafted commits | Defended: TreeKEM with blank-node removal, epoch hash-chaining, fork/gap/replay rejection. Insider *availability* denial is not claimed |
 | Malicious update distributor | Serves crafted manifests/binaries | Defended: hybrid Ed25519 + SLH-DSA signatures (both mandatory), monotonic version, downgrade floor |
@@ -83,7 +83,7 @@ Proof status, stated plainly, in one paragraph:
 │ NTR triple ratchet          │ 2048B frames · token bucket  │
 │ X25519+ML-KEM+ChaCha+HKDF   │ fixed padding · dummies      │
 ├─ null-transport ────────────┴─ null-memory ────────────────┤
-│ Tor/I2P/Nym/PT + multiplexer│ mlock · 3-pass wipe · HSM    │
+│ Tor/I2P/Nym/PT + multiplexer│ dump-off · clear · HSM       │
 ├─ null-identity · null-group · null-tui · null-update ──────┤
 │ safety nums · TreeKEM       │ Ratatui App · signed updates │
 └─────────────────────────────┴─ null-core (truth) ──────────┘
@@ -93,7 +93,7 @@ Proof status, stated plainly, in one paragraph:
   geometry, rekey policy, transport kinds, and `null://` connection-string
   parsing.
 - 12 workspace members (`resolver = "2"`, edition 2021, `rust-version`
-  1.75, license MIT OR Apache-2.0).
+  1.88, license MIT OR Apache-2.0).
 - RAM-only by design: no database, no config files, no session logs, no
   disk writes at any layer.
 
@@ -237,24 +237,26 @@ order.
 Length-prefixed `u32 BE` blobs (≤ 16 MiB), 120 s receive timeout. On quit:
 goodbye control frame, then ~2 s inbound drain — this is what guarantees a
 peer's in-flight messages are never RST-discarded. On peer FIN/RST: drain,
-then panic-wipe and exit 0.
+then clear the terminal and exit 0.
 
 ---
 
 ## 6. Memory Hardening & Endpoint Security
 
 - Zero disk writes; every sensitive buffer zeroized on drop.
-- Linux: `mlock`, `MADV_DONTDUMP`, `PR_SET_DUMPABLE=0`; macOS/Windows
-  abstractions ready (VirtualLock/mach_vm_wire scaffolding).
-- 3-pass panic wipe (random → zero → random) on SIGINT/SIGTERM/SIGHUP,
-  panic hook, Ctrl-C, `/quit`, EOF, peer goodbye, dead-man switch, and
-  USBGuard trigger (new `/dev` node).
+- Linux: `PR_SET_DUMPABLE=0` and `RLIMIT_CORE=0` at startup. `HardenedBuffer`
+  (`mlock` + `MADV_DONTDUMP`) exists but holds no keys yet. No macOS/Windows
+  hardening code.
+- Terminal clear + exit (no key zeroization; the kernel reclaims pages) on
+  SIGINT/SIGTERM/SIGHUP, panic hook, Ctrl-C, `/quit`, EOF, peer goodbye,
+  dead-man switch, and USBGuard trigger (new `/dev` node).
 - Terminal: alternate screen, scrollback kill on exit, bracketed paste off
   by default; clipboard copy clears in **5 s** (`CLIPBOARD_CLEAR_SECS`)
   with clipboard-manager warnings; Wayland wl-copy zombies reaped.
 - Secure input: optional `--secure-input` reads `/dev/input/event*`
   (root) to bypass terminal keyloggers; falls back to `/dev/tty` loudly.
-- Duress/decoy: demo TUI PIN `1234`; duress PIN `0000` triggers wipe;
+- Duress/decoy: lock PINs come from `NULL_LOCK_PIN`/`NULL_DURESS_PIN` (no
+  default); the duress PIN takes the exit path;
   `--safe` runs a benign IRC-like decoy surface; auto-lock default
   1800 s (`auto_lock_secs`); dead-man default disabled, `--dead-man-secs
   <N>` wipes+exits after N idle (default constant 1800 in `null-core`,
@@ -362,12 +364,12 @@ $ null ──► bootstrap (transports, HSM, hibernation check)
          ──► discovery (paste peer's null:// · out-of-band)
          ──► handshake (deniable or verified-pinned)
          ──► NTR active: shaped 2048B frames + cover traffic
-         ──► exit: goodbye + drain → 3-pass wipe → exit 0
+         ──► exit: goodbye + drain → clear terminal → exit 0
 ```
 
 In-chat: `/quit` (goodbye + drain + wipe) · `/lock` · `/unlock` ·
-`/copy` (clipboard auto-clears in 5s). TUI: demo PIN `1234`, duress
-`0000`, Esc quits, Ctrl-C wipes.
+`/copy` (clipboard auto-clears in 5s). TUI: lock PINs from env (none by
+default), Esc quits, Ctrl-C clears and exits.
 
 ---
 

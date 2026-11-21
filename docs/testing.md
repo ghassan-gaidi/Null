@@ -19,7 +19,7 @@ failure mode.
 | Transport | multiplexer, obfs4, loopback, blob batching cap | `null-transport` (11 tests) |
 | CLI | two-process chats, headless TUI sessions | `null-cli` |
 
-**124** test attributes workspace-wide (`#[test]` + `#[tokio::test]`,
+**130** test attributes workspace-wide (`#[test]` + `#[tokio::test]`,
 including the `#[test]` inside the `ratchet_interleave.rs` `proptest!`
 block), enforced by `cargo xtask doccheck`: if the docs ever stop
 matching the source count, CI fails. The proptest itself runs 128
@@ -67,11 +67,12 @@ randomized flows per execution.
 
 ## 5. Endpoint → evidence
 
-- Memory: wipe path tests, `ZeroizeOnDrop` containers, `mlock`/advisory
-  hooks (unsafe blocks documented per-site).
+- Memory: `HardenedBuffer` alignment and wipe tests, `harden_process`
+  (dumpable flag + core limit), `ZeroizeOnDrop` containers (unsafe blocks
+  documented per-site).
 - Clipboard: clear-after-`5`s schedule, `wl-copy` zombie reaping fixes.
-- USBGuard: new `/dev` node → panic wipe + exit 0.
-- TUI: key routing, PIN `1234`/duress `0000`, decoy surface, auto-lock.
+- USBGuard: new `/dev` node → terminal clear + exit 2.
+- TUI: key routing, configured PIN/duress PIN, no default PIN, decoy surface, auto-lock.
 - Secure input: evdev keymap tests; root-fallback warnings.
 
 ## 6. Build integrity → evidence
