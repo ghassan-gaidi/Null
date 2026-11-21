@@ -9,3 +9,6 @@ null-core = { workspace = true }
 null-crypto = { workspace = true }
 rand.workspace = true
 thiserror.workspace = true
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -15,3 +15,6 @@ rand.workspace = true
 thiserror.workspace = true
 serde.workspace = true
 zeroize.workspace = true
+
+[lints.rust]
+unsafe_code = "forbid"

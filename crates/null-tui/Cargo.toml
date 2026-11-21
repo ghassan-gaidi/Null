@@ -8,3 +8,6 @@ license.workspace = true
 null-core = { workspace = true }
 ratatui = "0.30"
 crossterm = "0.28"
+
+[lints.rust]
+unsafe_code = "forbid"
