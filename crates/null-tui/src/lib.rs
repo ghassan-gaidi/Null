@@ -13,6 +13,7 @@ use std::{
     io::{self, Write},
     time::{Duration, Instant},
 };
+use zeroize::Zeroize;
 
 /// TUI lifecycle state.
 pub struct Tui {
@@ -259,6 +260,21 @@ pub struct App {
     scroll: usize,
     notice: Option<String>,
     safety: Option<String>,
+    pins: Option<LockPins>,
+}
+
+/// Lock-screen PINs, supplied by the operator at startup. There is no
+/// built-in default: without them the lock screen is unavailable.
+struct LockPins {
+    real: String,
+    duress: String,
+}
+
+impl Drop for LockPins {
+    fn drop(&mut self) {
+        self.real.zeroize();
+        self.duress.zeroize();
+    }
 }
 
 impl App {
@@ -277,7 +293,29 @@ impl App {
             scroll: 0,
             notice: None,
             safety: None,
+            pins: None,
         }
+    }
+
+    /// Enable the lock screen with operator-supplied PINs. Rejects PINs
+    /// shorter than 4 characters and a duress PIN equal to the real one.
+    pub fn set_lock_pins(&mut self, real: &str, duress: &str) -> Result<(), &'static str> {
+        if real.chars().count() < 4 || duress.chars().count() < 4 {
+            return Err("PINs must be at least 4 characters");
+        }
+        if real == duress {
+            return Err("duress PIN must differ from the real PIN");
+        }
+        self.pins = Some(LockPins {
+            real: real.to_string(),
+            duress: duress.to_string(),
+        });
+        Ok(())
+    }
+
+    /// Whether a PIN is configured (lock screen and auto-lock available).
+    pub fn lock_enabled(&self) -> bool {
+        self.pins.is_some()
     }
 
     pub fn push_message(&mut self, author: &str, text: &str) {
@@ -323,7 +361,7 @@ impl App {
     }
 
     pub fn poll_auto_lock(&mut self) {
-        if self.tui.should_auto_lock() {
+        if self.pins.is_some() && self.tui.should_auto_lock() {
             self.tui.lock();
             self.set_notice("auto-locked (idle) — type PIN + Enter");
         }
@@ -368,8 +406,15 @@ impl App {
             KeyCode::Enter => {
                 let line = self.take_input();
                 if self.tui.locked {
-                    // Demo PINs mirror the CLI help text.
-                    return match self.unlock_line(&line, "1234", "0000") {
+                    let mut line = line;
+                    let pins = self.pins.take();
+                    let out = match &pins {
+                        Some(p) => self.unlock_line(&line, &p.real, &p.duress),
+                        None => UnlockOutcome::Denied,
+                    };
+                    self.pins = pins;
+                    line.zeroize();
+                    return match out {
                         UnlockOutcome::DuressTriggered => AppAction::Wipe,
                         _ => AppAction::None,
                     };
@@ -377,8 +422,14 @@ impl App {
                 match Self::interpret_line(line.trim()) {
                     LineCmd::Quit => AppAction::Quit,
                     LineCmd::Lock => {
-                        self.tui.lock();
-                        self.set_notice("locked — demo PIN is 1234");
+                        if self.pins.is_some() {
+                            self.tui.lock();
+                            self.set_notice("locked — enter PIN + Enter");
+                        } else {
+                            self.set_notice(
+                                "lock unavailable: set NULL_LOCK_PIN and NULL_DURESS_PIN",
+                            );
+                        }
                         AppAction::None
                     }
                     LineCmd::Copy => match self.last_message() {
@@ -513,6 +564,7 @@ mod tests {
     fn app_lock_blocks_input_and_reports() {
         use crossterm::event::{KeyCode, KeyModifiers};
         let mut app = App::new("bob".into(), "tor".into(), false, 60);
+        app.set_lock_pins("1234", "0000").unwrap();
         app.tui.lock();
         // Locked: chars still enter the box (PIN entry), Enter routes to unlock.
         assert_eq!(
@@ -543,7 +595,7 @@ mod tests {
             app.handle_key(KeyCode::Enter, KeyModifiers::empty()),
             AppAction::None
         );
-        assert!(!app.tui.locked, "demo PIN unlocks");
+        assert!(!app.tui.locked, "configured PIN unlocks");
     }
 
     #[test]
@@ -577,6 +629,7 @@ mod tests {
         assert_eq!(App::interpret_line("/copy"), LineCmd::Copy);
         assert_eq!(App::interpret_line(""), LineCmd::Empty);
         // Duress PIN wipes even from the lock screen.
+        app.set_lock_pins("1234", "0000").unwrap();
         app.tui.lock();
         for c in "0000".chars() {
             app.handle_key(KeyCode::Char(c), KeyModifiers::empty());
@@ -585,6 +638,48 @@ mod tests {
             app.handle_key(KeyCode::Enter, KeyModifiers::empty()),
             AppAction::Wipe
         );
+    }
+
+    #[test]
+    fn lock_is_unavailable_without_pins() {
+        use crossterm::event::{KeyCode, KeyModifiers};
+        let mut app = App::new("bob".into(), "tor".into(), false, 0);
+        assert!(!app.lock_enabled());
+        // A 0 s idle timeout must not lock when no PIN exists to unlock with.
+        app.poll_auto_lock();
+        assert!(!app.tui.locked);
+        for c in "/lock".chars() {
+            app.handle_key(KeyCode::Char(c), KeyModifiers::empty());
+        }
+        app.handle_key(KeyCode::Enter, KeyModifiers::empty());
+        assert!(!app.tui.locked, "/lock must not lock without a PIN");
+    }
+
+    #[test]
+    fn old_demo_pin_is_not_accepted() {
+        use crossterm::event::{KeyCode, KeyModifiers};
+        let mut app = App::new("bob".into(), "tor".into(), false, 60);
+        app.set_lock_pins("s3cret", "panic1").unwrap();
+        app.tui.lock();
+        for c in "1234".chars() {
+            app.handle_key(KeyCode::Char(c), KeyModifiers::empty());
+        }
+        assert_eq!(
+            app.handle_key(KeyCode::Enter, KeyModifiers::empty()),
+            AppAction::None
+        );
+        assert!(app.tui.locked, "1234 is not a valid PIN unless configured");
+    }
+
+    #[test]
+    fn set_lock_pins_rejects_weak_or_equal_pins() {
+        let mut app = App::new("bob".into(), "tor".into(), false, 60);
+        assert!(app.set_lock_pins("123", "0000").is_err());
+        assert!(app.set_lock_pins("1234", "000").is_err());
+        assert!(app.set_lock_pins("1234", "1234").is_err());
+        assert!(!app.lock_enabled());
+        assert!(app.set_lock_pins("1234", "0000").is_ok());
+        assert!(app.lock_enabled());
     }
 
     #[test]

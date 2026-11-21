@@ -736,6 +736,8 @@ async fn tui_loopback(
         decoy,
         auto_lock_secs,
     );
+    // Loopback demo only: fixed, documented PINs. Live paths read NULL_LOCK_PIN.
+    let _ = app.set_lock_pins("1234", "0000");
     if verified {
         app.set_safety(null_identity::safety_number(
             &ia.session_mut().kyber_ek_bytes(),
@@ -907,6 +909,7 @@ async fn live_handshake(
             false,
             auto_lock_secs,
         );
+        configure_lock(&mut app);
         if verified {
             let peer_vk = resp.identity_vk.as_deref().unwrap_or(ek_bytes.as_slice());
             app.set_safety(null_identity::safety_number(
@@ -1054,6 +1057,7 @@ async fn run_listener(
             false,
             auto_lock_secs,
         );
+        configure_lock(&mut app);
         if verified {
             let own_vk = own_id.as_ref().unwrap().verifying_bytes();
             let peer_vk = init
@@ -1452,6 +1456,22 @@ fn install_signal_wipe() {
             null_memory::clear_terminal();
             libc::_exit(128 + signal_hook::consts::SIGHUP);
         });
+    }
+}
+
+/// Enable the TUI lock screen from `NULL_LOCK_PIN` / `NULL_DURESS_PIN`.
+/// With either unset the lock screen stays unavailable (no default PIN).
+/// The variables are removed from the environment so spawned sidecars
+/// (tor, i2pd, ...) do not inherit them.
+fn configure_lock(app: &mut null_tui::App) {
+    let real = std::env::var("NULL_LOCK_PIN").ok();
+    let duress = std::env::var("NULL_DURESS_PIN").ok();
+    std::env::remove_var("NULL_LOCK_PIN");
+    std::env::remove_var("NULL_DURESS_PIN");
+    if let (Some(real), Some(duress)) = (real, duress) {
+        if let Err(e) = app.set_lock_pins(&real, &duress) {
+            eprintln!("[null] WARN: lock screen disabled: {e}");
+        }
     }
 }
 
