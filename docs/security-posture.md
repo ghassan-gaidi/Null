@@ -25,7 +25,7 @@ proof.
 | Handshake establishment secrecy | **Proven** (Dolev-Yao + compromise) | Tamarin `root_secrecy`, CI |
 | Initiator KCI resistance | **Proven** | Tamarin `kci_initiator`, CI |
 | Verified-PINNED mutual agreement | **Proven** (pin required; TOFU excluded by design) | Tamarin `mutual_agreement` + `vk_echo`/stale-ek/pinning tests |
-| Ratchet secrecy / FS / PQ-PCS | **In progress** (modelled; not machine-proven) | `model/ratchet.spthy`, tests + KATs |
+| Ratchet secrecy / FS / PQ-PCS | **In progress** (modelled; not machine-proven). Known design gap: the ML-KEM key is fixed for the whole session, so rekeys do not heal against a quantum adversary holding a state copy | `model/ratchet.spthy`, tests + KATs, `docs/pq-rekey-rotation.md` |
 | Deniability (default mode) | Classical argument + tripwire test; OE proof **not claimed** | `docs/deniability.md` |
 | Downgrade resistance | Tested (10-case matrix) | `downgrade.rs` |
 | Decoder robustness | Tested (deterministic corpus) | `cargo xtask fuzz` |
