@@ -1,7 +1,7 @@
 # Null — Post-Quantum, Metadata-Resistant Terminal Messenger
 
 [![CI](https://github.com/ghassan-gaidi/null/actions/workflows/ci.yml/badge.svg)](https://github.com/ghassan-gaidi/null/actions/workflows/ci.yml)
-![Rust](https://img.shields.io/badge/rust-1.75%2B-orange)
+![Rust](https://img.shields.io/badge/rust-1.88%2B-orange)
 ![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)
 
 **Landing page:** <https://ghassan-gaidi.github.io/Null/> — the full dossier:
