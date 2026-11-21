@@ -49,7 +49,7 @@ comparison still stands; a *release-grade* repro needs the prover
 further:
 
 - Build in a **clean container** with the pinned toolchain
-  (`rust-version = 1.75` minimum; record the exact stable version).
+  (`rust-version = 1.88` minimum; record the exact stable version).
 - Record the triple `(source commit, Cargo.lock digest, binary SHA256)` —
   this exact triple is what the update manifest binds
   (`docs/updates.md`).

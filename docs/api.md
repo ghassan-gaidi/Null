@@ -59,8 +59,8 @@ every public item in `null-crypto` names the Tamarin term it maps to
 
 ### `null-memory`
 - `HsmBackend` trait, `SoftwareHsm`, `HardwareHsmProbe`,
-  `panic_wipe_all_and_clear_screen`, `sleep_protection_status`,
-  pool/advisory machinery for mlock/MADV_DONTDUMP.
+  `harden_process`/`HardeningReport`, `HardenedBuffer`, `clear_terminal`,
+  `sleep_protection_status`.
 
 ### `null-identity`
 - `safety_number`, `safety_number_qr_ascii`, `device_member_id`,

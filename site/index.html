@@ -41,7 +41,7 @@
             <div class="e"><span class="k">handshake</span><span class="v ok">proven 5/5 · tamarin · CI</span></div>
             <div class="e"><span class="k">ratchet</span><span class="v">ECDH ∥ chain ∥ ML-KEM rekey</span></div>
             <div class="e"><span class="k">transport</span><span class="v">tor · i2p · nym · snowflake</span></div>
-            <div class="e"><span class="k">endpoint</span><span class="v">ram-only · 3-pass wipe</span></div>
+            <div class="e"><span class="k">endpoint</span><span class="v">ram-only · no core dumps</span></div>
           </div>
           <div class="hazard"></div>
         </section>
@@ -54,7 +54,7 @@
           <div class="cell"><span class="no">ADVERSARY 01</span><h3>Global passive observer</h3><p class="th">Traffic analysis, timing correlation, packet sizes, social graph.</p><p class="df"><i>⇒</i> 2048-byte fixed frames · 1 frame/2s shaping + jitter · dummy cover · tor/i2p/nym</p></div>
           <div class="cell"><span class="no">ADVERSARY 02</span><h3>Active network attacker</h3><p class="th">MitM, injection, replay, rushing, message dropping.</p><p class="df"><i>⇒</i> triple-DH + ML-KEM handshake · AEAD with bound AD · transcript resync</p></div>
           <div class="cell"><span class="no">ADVERSARY 03</span><h3>Quantum (harvest now)</h3><p class="th">Ciphertexts stored today, classical keys broken tomorrow.</p><p class="df"><i>⇒</i> ML-KEM-1024 at handshake · re-encap every ≤50 msgs / 7 d · ML-DSA-65 ids</p></div>
-          <div class="cell"><span class="no">ADVERSARY 04</span><h3>Local forensics</h3><p class="th">Disk imaging, swap analysis, cold boot.</p><p class="df"><i>⇒</i> zero disk writes · mlock · MADV_DONTDUMP · 3-pass panic wipe</p></div>
+          <div class="cell"><span class="no">ADVERSARY 04</span><h3>Local forensics</h3><p class="th">Disk imaging, swap analysis, cold boot.</p><p class="df"><i>⇒</i> zero disk writes · no core dumps · non-dumpable process</p></div>
           <div class="cell"><span class="no">ADVERSARY 05</span><h3>Endpoint malware (user)</h3><p class="th">Keyloggers, screen capture, clipboard scrapers.</p><p class="df"><i>⇒</i> /dev/tty + evdev secure input · clipboard auto-clear · anti-screenshot hints</p></div>
           <div class="cell"><span class="no">ADVERSARY 06</span><h3>Nation-state censor</h3><p class="th">DPI, bridge blocking, throttling.</p><p class="df"><i>⇒</i> bridges · snowflake · webtunnel · obfs4 · latency-weighted failover</p></div>
           <div class="cell"><span class="no">ADVERSARY 07</span><h3>Coercion / seizure</h3><p class="th">Physical access, rubber-hose demands.</p><p class="df"><i>⇒</i> duress PIN · decoy mode · USBGuard panic wipe · dead-man switch</p></div>
@@ -87,12 +87,12 @@
           <h2 id="h-ledger">§4 — Honesty ledger</h2>
           <span class="ref">full posture → <a href="https://github.com/ghassan-gaidi/null/blob/main/docs/security-posture.md">docs/security-posture.md</a></span>
         </section>
-        <div class="legend"><span class="lg p">proven — machine-checked, CI</span><span class="lg t">tested — 124 tests · KATs · fuzz</span><span class="lg a">named limitation</span></div>
+        <div class="legend"><span class="lg p">proven — machine-checked, CI</span><span class="lg t">tested — 130 tests · KATs · fuzz</span><span class="lg a">named limitation</span></div>
         <div class="ledger">
           <div class="lrow"><b>Handshake establishment secrecy</b><span class="ev">tamarin root_secrecy · Dolev-Yao + compromise · CI-enforced</span><span class="st"><span class="pill p">proven</span></span></div>
           <div class="lrow"><b>Initiator KCI resistance</b><span class="ev">tamarin kci_initiator</span><span class="st"><span class="pill p">proven</span></span></div>
           <div class="lrow"><b>Verified-pinned mutual agreement</b><span class="ev">tamarin mutual_agreement · vk_echo + pinning tests · TOFU excluded</span><span class="st"><span class="pill p">proven</span></span></div>
-          <div class="lrow"><b>Ratchet secrecy / FS / PQ-PCS</b><span class="ev">modelled line-for-line; covered by 124 tests + KAT vectors + fuzz while proofs run</span><span class="st"><span class="pill i">in progress</span></span></div>
+          <div class="lrow"><b>Ratchet secrecy / FS / PQ-PCS</b><span class="ev">modelled line-for-line; covered by 130 tests + KAT vectors + fuzz while proofs run</span><span class="st"><span class="pill i">in progress</span></span></div>
           <div class="lrow"><b>Deniability (default mode)</b><span class="ev">classical argument documented · frame-level tripwire test · OE proof not claimed</span><span class="st"><span class="pill t">tested</span></span></div>
           <div class="lrow"><b>Downgrade resistance</b><span class="ev">10-case attack matrix · version floor enforced</span><span class="st"><span class="pill t">tested</span></span></div>
           <div class="lrow"><b>TreeKEM PCS / fork / gap / replay</b><span class="ev">chaos-tested · not machine-proved</span><span class="st"><span class="pill t">tested</span></span></div>

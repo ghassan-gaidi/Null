@@ -16,3 +16,6 @@ null-identity = { workspace = true }
 null-group = { workspace = true }
 tokio = { workspace = true }
 proptest = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"

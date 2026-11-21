@@ -280,6 +280,13 @@ async fn dispatch_update(cmd: UpdateCmd) -> Result<()> {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
+    let hardening = null_memory::harden_process();
+    if !hardening.is_complete() {
+        eprintln!(
+            "[null] WARN: process hardening incomplete (non-dumpable: {}, core dumps off: {})",
+            hardening.non_dumpable, hardening.core_dumps_disabled
+        );
+    }
     install_signal_wipe();
 
     if args.secure_input && !is_root() {
@@ -729,6 +736,8 @@ async fn tui_loopback(
         decoy,
         auto_lock_secs,
     );
+    // Loopback demo only: fixed, documented PINs. Live paths read NULL_LOCK_PIN.
+    let _ = app.set_lock_pins("1234", "0000");
     if verified {
         app.set_safety(null_identity::safety_number(
             &ia.session_mut().kyber_ek_bytes(),
@@ -900,6 +909,7 @@ async fn live_handshake(
             false,
             auto_lock_secs,
         );
+        configure_lock(&mut app);
         if verified {
             let peer_vk = resp.identity_vk.as_deref().unwrap_or(ek_bytes.as_slice());
             app.set_safety(null_identity::safety_number(
@@ -1047,6 +1057,7 @@ async fn run_listener(
             false,
             auto_lock_secs,
         );
+        configure_lock(&mut app);
         if verified {
             let own_vk = own_id.as_ref().unwrap().verifying_bytes();
             let peer_vk = init
@@ -1414,9 +1425,9 @@ fn spawn_usbguard() {
             std::thread::sleep(std::time::Duration::from_secs(2));
             let now = snapshot();
             if now.iter().any(|n| !known.contains(n)) {
-                eprintln!("[null] USBGuard: new device node — panic wipe");
-                null_memory::panic_wipe_all_and_clear_screen();
-                std::process::exit(0);
+                eprintln!("[null] USBGuard: new device node, clearing terminal and exiting");
+                null_memory::clear_terminal();
+                std::process::exit(2);
             }
             known = now;
         }
@@ -1424,28 +1435,50 @@ fn spawn_usbguard() {
 }
 
 fn install_signal_wipe() {
-    // Rust-level guard: on panic, clear screen before unwinding out.
+    // On panic: clear the terminal, then print the panic. Unwinding still
+    // runs afterwards, so owned secrets with ZeroizeOnDrop are dropped.
     std::panic::set_hook(Box::new(|info| {
-        eprintln!("[null] panic — wiping keys");
-        null_memory::panic_wipe_all_and_clear_screen();
+        null_memory::clear_terminal();
         eprintln!("panic: {info}");
     }));
     #[cfg(unix)]
     unsafe {
-        // Best-effort: ignore errors; tokio ctrl_c covers SIGINT path.
+        // The handlers must be async-signal-safe: one write(2) to clear the
+        // screen, then _exit. No allocation, no locks, no destructors, so
+        // key material is released by the kernel, not zeroized by us.
+        // Exit codes follow the shell convention (128 + signal). SIGINT is
+        // handled by tokio's ctrl_c in the run loops.
         let _ = signal_hook::low_level::register(signal_hook::consts::SIGTERM, || {
-            null_memory::panic_wipe_all_and_clear_screen();
-            std::process::exit(0);
+            null_memory::clear_terminal();
+            libc::_exit(128 + signal_hook::consts::SIGTERM);
         });
         let _ = signal_hook::low_level::register(signal_hook::consts::SIGHUP, || {
-            null_memory::panic_wipe_all_and_clear_screen();
-            std::process::exit(0);
+            null_memory::clear_terminal();
+            libc::_exit(128 + signal_hook::consts::SIGHUP);
         });
     }
 }
 
+/// Enable the TUI lock screen from `NULL_LOCK_PIN` / `NULL_DURESS_PIN`.
+/// With either unset the lock screen stays unavailable (no default PIN).
+/// The variables are removed from the environment so spawned sidecars
+/// (tor, i2pd, ...) do not inherit them.
+fn configure_lock(app: &mut null_tui::App) {
+    let real = std::env::var("NULL_LOCK_PIN").ok();
+    let duress = std::env::var("NULL_DURESS_PIN").ok();
+    std::env::remove_var("NULL_LOCK_PIN");
+    std::env::remove_var("NULL_DURESS_PIN");
+    if let (Some(real), Some(duress)) = (real, duress) {
+        if let Err(e) = app.set_lock_pins(&real, &duress) {
+            eprintln!("[null] WARN: lock screen disabled: {e}");
+        }
+    }
+}
+
+/// Clear the terminal and exit 0. `process::exit` skips destructors, so
+/// secrets are not zeroized here; the kernel reclaims the pages.
 fn secure_exit() -> ! {
-    null_memory::panic_wipe_all_and_clear_screen();
+    null_memory::clear_terminal();
     std::process::exit(0);
 }
 

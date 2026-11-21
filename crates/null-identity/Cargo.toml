@@ -9,3 +9,6 @@ null-core = { workspace = true }
 sha3 = "0.10"
 thiserror.workspace = true
 qrcodegen = "1.8"
+
+[lints.rust]
+unsafe_code = "forbid"

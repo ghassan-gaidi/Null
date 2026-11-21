@@ -1293,6 +1293,7 @@ dependencies = [
  "crossterm 0.28.1",
  "null-core",
  "ratatui",
+ "zeroize",
 ]
 
 [[package]]

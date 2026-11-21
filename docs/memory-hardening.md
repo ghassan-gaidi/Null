@@ -17,30 +17,43 @@ grasp when a machine (or its owner) is compromised. Implementation:
 
 ## 2. Kernel-backed protections (Linux-first)
 
-- `mlock` pins secret buffers so they never spill to swap.
-- `MADV_DONTDUMP` excludes secret regions from core dumps (with
-  `MADV_WILLNEED` to keep them resident per the advisory pattern).
-- `PR_SET_DUMPABLE = 0` and ptrace hardening: a debugger cannot attach to
-  a live `null` without the operator going out of their way.
-- macOS/Windows equivalents are scaffolded (`VirtualLock`,
-  `mach_vm_wire`) behind the same `MemoryPool` abstraction — the Linux
-  path is the tested one.
+Applied once at startup by `null_memory::harden_process()`:
 
-## 3. The panic wipe
+- `PR_SET_DUMPABLE = 0`: no core dump, and a debugger cannot attach to a
+  live `null` without privilege (same-uid ptrace is refused).
+- `RLIMIT_CORE = 0` (soft and hard): no core file even if the dumpable
+  flag were flipped later. Children inherit the limit.
 
-`panic_wipe_all_and_clear_screen` runs on any of:
+A warning is printed if either step fails.
+
+Available but **not wired to any secret yet**:
+
+- `HardenedBuffer`: page-aligned, `mlock`ed, `MADV_DONTDUMP`, zeroized
+  and unlocked on drop. Ratchet, identity and Kyber keys do not live in
+  one, so they are ordinary memory and **can be swapped** (see Known gaps).
+
+Non-Linux builds get no process hardening (`HardeningReport` is all
+false). There is no macOS/Windows `VirtualLock`/`mach_vm_wire` code.
+
+## 3. The exit path
+
+`null_memory::clear_terminal` runs on any of:
 
 - SIGINT (Ctrl-C), SIGTERM, SIGHUP (signal_hook handlers),
-- the Rust panic hook (clears the screen before unwinding),
+- the Rust panic hook (clears the screen, then prints the panic and
+  unwinds),
 - `/quit`, stdin EOF, peer goodbye, peer FIN/RST,
 - the dead-man switch,
+- the duress PIN,
 - the USBGuard trigger (new `/dev` node).
 
-Sequence: disable re-entry → overwrite all key buffers with CSPRNG
-random → overwrite with zeros → random again (3-pass) → unlock/munmap →
-clear the terminal (alternate-screen exit, scrollback kill) → `exit 0`.
-Deliberate exits are **always 0 after a wipe**; error paths propagate a
-nonzero status before the wipe runs.
+Sequence: clear the screen and scrollback with one `write(2)`, then
+exit. `process::exit` and `_exit` skip destructors, so **this path does
+not zeroize keys**; the kernel reclaims the pages. Exit codes: `0` for
+deliberate exits (`/quit`, Ctrl-C, EOF, peer goodbye, duress PIN), `143`
+for SIGTERM, `129` for SIGHUP, `2` for the USBGuard trigger; error paths
+propagate a nonzero status. The SIGTERM/SIGHUP handlers call only
+`write(2)` and `_exit(2)`, which are async-signal-safe.
 
 ## 4. Terminal hygiene
 
@@ -75,11 +88,11 @@ nonzero status before the wipe runs.
 
 | Feature | Default | Behavior |
 |---|---|---|
-| Auto-lock (`--auto-lock-secs`) | 1800 s (30 min) idle | Blurs/locks the UI; PIN to resume |
-| Dead-man switch (`--dead-man-secs`) | **Disabled (0)** — the code-level baseline constant is `DEAD_MAN_SWITCH_SECS = 1800`, but shipping it armed by default would wipe laptops on idle; enabling is an explicit operator decision | Wipe keys + exit after N idle seconds |
-| Duress PIN | TUI demo PIN `1234`, duress `0000` | Wrong-PIN path wipes keys, shows a plausible "disconnected" state |
+| Auto-lock (`--auto-lock-secs`) | 1800 s (30 min) idle; only active when lock PINs are set | Locks the UI; PIN to resume |
+| Dead-man switch (`--dead-man-secs`) | **Disabled (0)** — the code-level baseline constant is `DEAD_MAN_SWITCH_SECS = 1800`, but shipping it armed by default would wipe laptops on idle; enabling is an explicit operator decision | Clear terminal + exit after N idle seconds |
+| Lock / duress PIN | None. Set `NULL_LOCK_PIN` and `NULL_DURESS_PIN` (at least 4 characters, different); without them the lock screen and auto-lock are unavailable. Loopback demo only: `1234` / `0000` | The duress PIN takes the exit path in section 3 (terminal clear + exit 0); it does not zeroize keys |
 | Decoy mode (`--safe`) | off | Benign IRC-like interface; the real session hides behind `/unlock` |
-| USBGuard (`--usbguard`) | off | Polls `/dev`; any new node → panic wipe + exit 0 |
+| USBGuard (`--usbguard`) | off | Polls `/dev`; any new node → clear terminal + exit 2 |
 
 ## 8. HSM tiers
 
@@ -117,3 +130,16 @@ These are **mitigations, not proofs**:
   signal), not impossible.
 - TPM/YubiKey/Secure Enclave *operations* are not shipped; the probe
   cannot be relied on as a key-isolation boundary today.
+
+## Known gaps
+
+- Key material is not held in `HardenedBuffer` or any locked memory, so
+  swap can capture it. Mitigation today: no swap, or encrypted swap.
+- No zeroization on exit: every deliberate exit and both signal handlers
+  end in `process::exit`/`_exit`, which skip `Drop`.
+- `mlock` failure (low `RLIMIT_MEMLOCK`) is a warning, not an error;
+  check `HardenedBuffer::is_locked()` where the guarantee matters.
+- `mlockall` is not used: with a typical 8 MiB memlock limit it would make
+  ordinary allocations fail.
+- Cold boot and live-process memory scraping are out of scope
+  (`docs/threat-model.md`).
