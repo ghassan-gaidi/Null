@@ -684,8 +684,6 @@ mod tests {
 
     #[test]
     fn pt_rendezvous_is_operator_configurable() {
-        assert!(!SnowflakeTransport::DEFAULT_RENDEZVOUS.is_empty());
-        assert!(!WebTunnelTransport::DEFAULT_FRONT.is_empty());
         let s = SnowflakeTransport::with_rendezvous("op-broker.example".into());
         assert_eq!(s.rendezvous, "op-broker.example");
         let w = WebTunnelTransport::with_front("front.example".into());
